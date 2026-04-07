@@ -1,5 +1,5 @@
-"---
-title: "README: MTS-CAR and Baseline Models"
+---
+title: "README: MTS-CAR and MTS Baseline Models"
 output: github_document
 ---
 
@@ -7,32 +7,29 @@ output: github_document
 
 This repository contains the R Markdown implementation of the following models:
 
-1. **MTS-CAR**: a multivariate time-series model with conditional autoregressive (CAR) spatial effects.
-2. **MTS Baseline**: a baseline multivariate time-series model without the full CAR structure.
-3. **SS Baseline**: a single-series AR(1) baseline fitted separately to each series.
+1. **MTS-CAR**: a restricted VAR model with conditional autoregressive (CAR) spatial effects.
+2. **MTS Baseline**: a baseline restricted VAR model without the CAR structure.
 
-The main model in this repository is **MTS-CAR**. It is designed for panel time-series data observed across multiple areas or units, where temporal dependence and spatial dependence are both important.
+The main model in this repository is **MTS-CAR**. It is designed for panel data observed across multiple areas or units, where temporal dependence and spatial dependence are both important.
 
 The repository is intended for users who want to:
 
 - fit the proposed MTS-CAR model,
-- compare it with simpler baselines,
 - generate leave-one-out forecasts,
 - and evaluate predictive performance using the same transformed dataset and forecast metrics.
 
 # Repository contents
 
-The repository currently contains three main R Markdown files:
+The repository currently contains two main R Markdown files:
 
-- `MTS-CAR.Rmd`
 - `MTS Baseline.Rmd`
-- `SS Baseline.Rmd`
+- `MTS-CAR.Rmd`
 
 These files are organized as follows:
 
+- **MTS Baseline.Rmd**: the baseline model.
 - **MTS-CAR.Rmd**: full model with spatial random effects and CAR prior structure.
-- **MTS Baseline.Rmd**: multivariate baseline model.
-- **SS Baseline.Rmd**: single-series baseline model fitted independently to each area.
+
 
 # Model summary
 
@@ -56,7 +53,7 @@ This model is appropriate when:
 
 ## MTS Baseline
 
-The MTS Baseline provides a multivariate benchmark without the full spatial CAR structure. It is included for model comparison.
+The MTS Baseline provides a benchmark without the full spatial CAR structure. It is included for model comparison.
 
 ## SS Baseline
 
@@ -68,7 +65,7 @@ y_t = \beta_0 + \beta_1 y_{t-1} + \varepsilon_t,
 \varepsilon_t \sim \mathcal{N}(0,\sigma^2).
 $$
 
-This serves as the simplest benchmark.
+This serves as the simplest benchmark. (Code not included here)
 
 # Data requirements
 
@@ -76,9 +73,9 @@ The code assumes that the same dataset is used across all models.
 
 The following objects are expected in the working environment or created during preprocessing:
 
-- `MSA_data`: transformed analysis series used for estimation
-- `mdata`: intermediate transformed series used for back-transformation
-- `msa_data`: square-root transformed series
+- `MSA_data`: square-root transformed and second differenced series used for estimation
+- `mdata`: square-root transformed and first differenced series used for back-transformation
+- `msa_data`: square-root transformed only series
 - `msa_data_level`: original series in level form
 - `Dat2.csv`: adjacency matrix used for the spatial structure in the MTS-CAR model
 
@@ -86,8 +83,8 @@ The following objects are expected in the working environment or created during 
 
 The forecasting code in this repository assumes that the data have already undergone the same preprocessing pipeline used in the paper:
 
-1. transformation,
-2. differencing,
+1. square-root transformation,
+2. first and second differencing,
 3. construction of lagged series,
 4. and alignment of the transformed and level datasets.
 
@@ -95,6 +92,39 @@ In particular, the leave-one-out forecast code assumes that:
 
 - the final row of the transformed series is held out,
 - the model is fit on rows `1, ..., T-1`,
-- the omitted final transformed value is forecast,
+- the omitted final transformed value is then forecast using the fitted model,
 - and the forecast is back-transformed to the original level.
+- Finally, the prediction performance and error diagnostics 
 
+## Output produced by the code
+
+The code will typically return:
+
+- posterior parameter draws,
+- posterior summary tables,
+- trace plots and density plots for MCMC-based models,prediction tables, and relative-error summary tables.
+
+Typical output objects may include:
+
+- fitted model objects,
+- prediction summary tables,
+- error summary tables,
+- parameter summary tables.
+
+## Required R packages
+
+Depending on the model file, the following packages may be required:
+
+`install.packages(c(
+  "Matrix",
+  "coda",
+  "ggplot2",
+  "gridExtra",
+  "reshape2",
+  "dplyr"
+))`
+
+## Graphs
+- The Figures in the paper were produced manually by collecting the output from the code and plotting in a separate script. 
+- The code in this repository does not automatically generate the same figures, but it produces the underlying data and summary tables that can be used to create similar visualizations. 
+- Users can customize their own plots based on the output from the model fitting and forecasting code.
