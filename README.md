@@ -94,7 +94,7 @@ In particular, the leave-one-out forecast code assumes that:
 - the model is fit on rows `1, ..., T-1`,
 - the omitted final transformed value is then forecast using the fitted model,
 - and the forecast is back-transformed to the original level.
-- Finally, the prediction performance and error diagnostics 
+- Finally, the prediction performance and error diagnostics are performed on the back-transformed forecasts compared to the original level data.
 
 ## Output produced by the code
 
